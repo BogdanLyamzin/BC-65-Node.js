@@ -1,0 +1,1 @@
+console.log("Let start learning Node.js, friends!")
