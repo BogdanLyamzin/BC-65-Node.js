@@ -1,13 +1,10 @@
-import fs from "fs/promises";
-import path from "path";
-
 import * as foodsServices from "../services/foodsServices.js";
 
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 import HttpError from "../helpers/HttpError.js";
 
-const foodsDir = path.resolve("public", "foods");
+import cloudinary from "../helpers/cloudinary.js";
 
 const getAllFoods = async (req, res) => {
     const { _id: owner } = req.user;
@@ -34,11 +31,11 @@ const getFoodById = async (req, res) => {
 }
 
 const addFood = async (req, res) => {
-    const {path: oldPath, filename}= req.file;
-    const newPath = path.join(foodsDir, filename);
-    await fs.rename(oldPath, newPath);
     const { _id: owner } = req.user;
-    const photo = path.join("foods", filename);
+    const {url: photo} = await cloudinary.uploader.upload(req.file.path, {
+        folder: "foods"
+    });
+
     const result = await foodsServices.addFood({ ...req.body, photo, owner });
 
     res.status(201).json(result);
